@@ -1,551 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Happy Diwali Bestie! 🪔</title>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali Bestie! 🪔</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: radial-gradient(circle at center, #5e2267 0%, #2d0c36 70%, #1a0522 100%);
+    color: #fff; font-family: 'Poppins', sans-serif;
+    height: 100vh; width: 100vw; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
   
-  <!-- CORE SCRIPT IN HEAD SO BUTTONS ALWAYS WORK -->
-  <script>
-    var releasedCount = 0;
+  /* Top Dots */
+  .top-bar { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 50; }
+  .dots { display: flex; gap: 6px; background: rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 20px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: 0.3s; }
+  .dot.active { width: 22px; border-radius: 10px; background: #ff9d00; box-shadow: 0 0 8px #ff9d00; }
 
-    function goPage(num) {
-      var screens = document.querySelectorAll('.screen');
-      var dots = document.querySelectorAll('.dot');
-      for (var i = 0; i < screens.length; i++) {
-        screens[i].classList.remove('active');
-        if (dots[i]) dots[i].classList.remove('active');
-      }
-      var target = document.getElementById('page-' + num);
-      if (target) target.classList.add('active');
-      if (dots[num]) dots[num].classList.add('active');
-      if (window.burstFirework) {
-        window.burstFirework(window.innerWidth / 2, window.innerHeight * 0.3);
-      }
-    }
+  /* Pages */
+  .page {
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; z-index: 10; width: 92%; max-width: 420px; padding: 15px;
+  }
+  .page.active { display: flex; animation: fade 0.4s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    function lightDiyas() {
-      var big = document.getElementById('bigDiya');
-      if (big.classList.contains('lit')) return;
-      big.classList.add('lit');
-      document.getElementById('tapHint').style.display = 'none';
+  h1, h2 { font-family: 'Playfair Display', serif; color: #fff2d6; text-shadow: 0 2px 10px rgba(255,165,0,0.4); margin-bottom: 8px; }
+  h1 { font-size: 1.9rem; }
+  h2 { font-size: 1.65rem; }
+  .hand { font-family: 'Caveat', cursive; font-size: 1.55rem; color: #ffcf70; line-height: 1.35; margin: 8px 0 18px; }
+  .hint { font-size: 0.85rem; color: #e0c8e8; margin-top: 10px; }
 
-      var smalls = document.querySelectorAll('.unlit-diya');
-      smalls.forEach(function(d, idx) {
-        setTimeout(function() {
-          d.classList.add('lit');
-          if (window.burstFirework) {
-            window.burstFirework(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * 0.25);
-          }
-        }, (idx + 1) * 180);
-      });
+  /* Bulletproof Button */
+  .btn {
+    display: inline-block; text-decoration: none; position: relative; z-index: 30;
+    background: linear-gradient(90deg, #ff6a00, #ff9900); color: #fff; border: none;
+    padding: 13px 28px; font-size: 1rem; font-weight: 600; border-radius: 30px;
+    box-shadow: 0 0 20px rgba(255,120,0,0.65); cursor: pointer; margin-top: 8px;
+  }
+  .btn:active { transform: scale(0.95); }
 
-      setTimeout(function() {
-        document.getElementById('afterLitBox').style.display = 'block';
-      }, smalls.length * 180 + 250);
-    }
+  /* Heart Diyas (Page 1) */
+  .heart-grid {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 14px;
+  }
+  .h-row { display: flex; justify-content: center; align-items: center; }
+  .h-diya { font-size: 26px; filter: drop-shadow(0 0 10px #ff9900); animation: glow 1s infinite alternate; }
+  @keyframes glow { from { transform: scale(1); } to { transform: scale(1.12); filter: drop-shadow(0 0 16px #ffd700); } }
 
-    function flyLantern(el) {
-      if (el.classList.contains('flown')) return;
-      el.classList.add('flown');
-      releasedCount++;
-      if (window.burstFirework) {
-        window.burstFirework(window.innerWidth * 0.5, window.innerHeight * 0.25);
-      }
-      if (releasedCount >= 5) {
-        document.getElementById('lanternHint').style.display = 'none';
-        setTimeout(function() {
-          document.getElementById('lanternNextBox').style.display = 'block';
-        }, 800);
-      }
-    }
-  </script>
+  /* Page 2 Diyas */
+  .d-row { display: flex; gap: 20px; align-items: center; justify-content: center; margin: 6px 0; }
+  .diya { font-size: 36px; filter: grayscale(90%) brightness(0.45); opacity: 0.6; transition: 0.4s; }
+  .diya.big { font-size: 66px; cursor: pointer; filter: grayscale(50%) brightness(0.7); opacity: 0.9; }
+  .diya.lit { filter: grayscale(0%) brightness(1.15) drop-shadow(0 0 18px #ffae00); opacity: 1; animation: glow 1s infinite alternate; }
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+  .art { font-size: 4.8rem; margin-bottom: 12px; filter: drop-shadow(0 0 20px rgba(255,180,0,0.6)); }
 
-    body {
-      background: radial-gradient(circle at center, #5e2267 0%, #2d0c36 70%, #1a0522 100%);
-      color: #fff;
-      font-family: 'Poppins', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
+  /* Sky Lanterns (Page 6) */
+  .sky { position: relative; width: 100%; height: 240px; margin: 8px 0; }
+  .l-box { position: absolute; width: 125px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .lamp {
+    width: 42px; height: 58px; border-radius: 14px 14px 6px 6px;
+    background: radial-gradient(circle at 50% 70%, #fff9b0 0%, #ff9900 60%, #cc3300 100%);
+    box-shadow: 0 0 20px #ff9900, inset 0 -6px 12px #fff;
+    transition: transform 3s ease-in, opacity 3s ease-in;
+  }
+  .l-msg { font-family: 'Caveat', cursive; font-size: 1.15rem; color: #ffe08a; opacity: 0; transition: 0.5s; white-space: nowrap; margin-bottom: 4px; }
+  .l-box.up { pointer-events: none; }
+  .l-box.up .lamp { transform: translateY(-350px) scale(0.2); opacity: 0; }
+  .l-box.up .l-msg { opacity: 1; }
 
-    #fwCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    /* Top Dots */
-    .top-bar {
-      position: absolute;
-      top: 22px;
-      z-index: 20;
-    }
-
-    .dots {
-      display: flex;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.14);
-      padding: 8px 14px;
-      border-radius: 20px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.35);
-      transition: all 0.3s;
-    }
-
-    .dot.active {
-      width: 22px;
-      border-radius: 10px;
-      background: #ff9d00;
-      box-shadow: 0 0 8px #ff9d00;
-    }
-
-    /* Screens */
-    .screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      z-index: 10;
-      width: 92%;
-      max-width: 440px;
-      padding: 15px;
-      animation: popIn 0.45s ease;
-    }
-
-    .screen.active {
-      display: flex;
-    }
-
-    @keyframes popIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1, h2 {
-      font-family: 'Playfair Display', serif;
-      color: #fff2d6;
-      text-shadow: 0 2px 10px rgba(255, 165, 0, 0.35);
-      margin-bottom: 8px;
-    }
-
-    h1 { font-size: 1.95rem; }
-    h2 { font-size: 1.65rem; }
-
-    .handwritten {
-      font-family: 'Caveat', cursive;
-      font-size: 1.55rem;
-      color: #ffcf70;
-      line-height: 1.35;
-      margin: 8px 0 18px;
-    }
-
-    .sub-hint {
-      font-size: 0.85rem;
-      color: #e0c8e8;
-      margin-top: 10px;
-    }
-
-    .btn {
-      position: relative;
-      z-index: 25;
-      background: linear-gradient(90deg, #ff6a00, #ff9900);
-      color: #fff;
-      border: none;
-      padding: 13px 28px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 30px;
-      cursor: pointer;
-      box-shadow: 0 0 22px rgba(255, 120, 0, 0.65);
-      font-family: 'Poppins', sans-serif;
-      margin-top: 8px;
-    }
-
-    .btn:active {
-      transform: scale(0.95);
-    }
-
-    /* =======================================
-       EMOJI DIYAS (100% VISIBLE EVERYWHERE)
-       ======================================= */
-    .heart-box {
-      position: relative;
-      width: 210px;
-      height: 175px;
-      margin-bottom: 12px;
-    }
-
-    .h-diya {
-      position: absolute;
-      font-size: 28px;
-      filter: drop-shadow(0 0 10px #ff9900);
-      animation: pulseGlow 1.2s infinite alternate;
-    }
-
-    @keyframes pulseGlow {
-      from { transform: scale(1); filter: drop-shadow(0 0 6px #ff9900); }
-      to { transform: scale(1.12); filter: drop-shadow(0 0 16px #ffd700); }
-    }
-
-    /* Screen 2 Interactive Diyas */
-    .diya-grid {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin: 12px 0;
-    }
-
-    .diya-row {
-      display: flex;
-      gap: 22px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .d-icon {
-      font-size: 38px;
-      transition: all 0.4s ease;
-      filter: grayscale(85%) brightness(0.45);
-      opacity: 0.6;
-    }
-
-    .d-icon.big {
-      font-size: 68px;
-      cursor: pointer;
-      filter: grayscale(60%) brightness(0.65);
-      opacity: 0.85;
-    }
-
-    .d-icon.lit {
-      filter: grayscale(0%) brightness(1.15) drop-shadow(0 0 18px #ffae00);
-      opacity: 1;
-      animation: pulseGlow 1.1s infinite alternate;
-    }
-
-    /* Center Art */
-    .big-art {
-      font-size: 5rem;
-      margin-bottom: 12px;
-      filter: drop-shadow(0 0 22px rgba(255, 180, 0, 0.6));
-      animation: floatUp 3s ease-in-out infinite;
-    }
-
-    @keyframes floatUp {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    /* =======================================
-       SKY LANTERNS (SMOOTH UPWARD FLIGHT)
-       ======================================= */
-    .sky-box {
-      position: relative;
-      width: 100%;
-      height: 250px;
-      margin: 8px 0;
-    }
-
-    .lantern-wrap {
-      position: absolute;
-      width: 125px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .lantern-lamp {
-      width: 44px;
-      height: 60px;
-      background: radial-gradient(circle at 50% 70%, #fff9b0 0%, #ff9900 60%, #cc3300 100%);
-      border-radius: 15px 15px 6px 6px;
-      box-shadow: 0 0 22px #ff9900, inset 0 -8px 14px #fff;
-      transition: transform 3.2s ease-in, opacity 3.2s ease-in;
-      position: relative;
-    }
-
-    .lantern-lamp::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 25%;
-      width: 50%;
-      height: 6px;
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: 0 0 12px #ffd700;
-    }
-
-    .lantern-text {
-      font-family: 'Caveat', cursive;
-      font-size: 1.2rem;
-      color: #ffe08a;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      text-shadow: 0 2px 8px #000;
-      margin-bottom: 4px;
-      pointer-events: none;
-    }
-
-    .lantern-wrap.flown {
-      pointer-events: none;
-    }
-
-    .lantern-wrap.flown .lantern-lamp {
-      transform: translateY(-380px) scale(0.25);
-      opacity: 0;
-    }
-
-    .lantern-wrap.flown .lantern-text {
-      opacity: 1;
-    }
-
-    /* Bottom Rangoli */
-    .rangoli {
-      position: absolute;
-      bottom: -95px;
-      width: 200px;
-      height: 200px;
-      z-index: 2;
-      pointer-events: none;
-      animation: spin 25s linear infinite;
-    }
-
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+  /* Bottom Rangoli */
+  .rangoli { position: fixed; bottom: -95px; left: calc(50% - 100px); width: 200px; height: 200px; z-index: 2; pointer-events: none; animation: spin 25s linear infinite; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
 
-  <canvas id="fwCanvas"></canvas>
+<canvas id="cw"></canvas>
 
-  <!-- Progress Dots -->
-  <div class="top-bar">
-    <div class="dots">
-      <div class="dot active"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
+<div class="top-bar">
+  <div class="dots" id="dots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<!-- PAGE 0: Heart Diyas Intro -->
+<div class="page active" id="p0">
+  <div class="heart-grid">
+    <div class="h-row" style="gap: 45px;"><span class="h-diya">🪔</span><span class="h-diya">🪔</span></div>
+    <div class="h-row" style="gap: 38px;"><span class="h-diya">🪔</span><span class="h-diya">🪔</span><span class="h-diya">🪔</span></div>
+    <div class="h-row" style="gap: 82px;"><span class="h-diya">🪔</span><span class="h-diya">🪔</span></div>
+    <div class="h-row" style="gap: 38px;"><span class="h-diya">🪔</span><span class="h-diya">🪔</span></div>
+    <div class="h-row"><span class="h-diya">🪔</span></div>
+  </div>
+  <h1>Bestie... Happy Diwali 🪔</h1>
+  <p class="hand">This year I wanted to light<br>something special just for you 💛</p>
+  <button class="btn" onclick="showPage(1)">Open My Diwali ✨ ➔</button>
+</div>
+
+<!-- PAGE 1: Light Diyas -->
+<div class="page" id="p1">
+  <h2>Let's light up<br>Diwali together 🪔</h2>
+  <div style="margin: 10px 0;">
+    <div class="d-row"><span class="diya sm">🪔</span><span class="diya sm">🪔</span></div>
+    <div class="d-row"><span class="diya sm">🪔</span><span class="diya sm">🪔</span><span class="diya sm">🪔</span></div>
+    <div class="d-row">
+      <span class="diya sm">🪔</span>
+      <span class="diya big" id="bigD" onclick="ignite()">🪔</span>
+      <span class="diya sm">🪔</span>
     </div>
   </div>
-
-  <!-- PAGE 0: Intro with Heart Diyas -->
-  <div class="screen active" id="page-0">
-    <div class="heart-box">
-      <span class="h-diya" style="left: 42px; top: 8px;">🪔</span>
-      <span class="h-diya" style="left: 132px; top: 8px;">🪔</span>
-      <span class="h-diya" style="left: 12px; top: 38px;">🪔</span>
-      <span class="h-diya" style="left: 87px; top: 32px;">🪔</span>
-      <span class="h-diya" style="left: 162px; top: 38px;">🪔</span>
-      <span class="h-diya" style="left: 28px; top: 78px;">🪔</span>
-      <span class="h-diya" style="left: 146px; top: 78px;">🪔</span>
-      <span class="h-diya" style="left: 55px; top: 112px;">🪔</span>
-      <span class="h-diya" style="left: 118px; top: 112px;">🪔</span>
-      <span class="h-diya" style="left: 87px; top: 142px;">🪔</span>
-    </div>
-    <h1>Bestie... Happy Diwali 🪔</h1>
-    <p class="handwritten">This year I wanted to light<br>something special just for you 💛</p>
-    <button type="button" class="btn" onclick="goPage(1)">Open My Diwali ✨ ➔</button>
+  <p class="hint" id="hint1">Tap the big diya ✨</p>
+  <div id="litDone" style="display:none; margin-top:8px;">
+    <h2 style="color:#ffd700;">Happy Diwali, my bestie 💛</h2>
+    <p class="hand" style="margin:4px 0 12px;">I saved the first light for you.</p>
+    <button class="btn" onclick="showPage(2)">Read what I wrote ➔</button>
   </div>
+</div>
 
-  <!-- PAGE 1: Tap the Big Diya -->
-  <div class="screen" id="page-1">
-    <h2>Let's light up<br>Diwali together 🪔</h2>
-    <div class="diya-grid">
-      <div class="diya-row">
-        <span class="d-icon unlit-diya">🪔</span>
-        <span class="d-icon unlit-diya">🪔</span>
-      </div>
-      <div class="diya-row">
-        <span class="d-icon unlit-diya">🪔</span>
-        <span class="d-icon unlit-diya">🪔</span>
-        <span class="d-icon unlit-diya">🪔</span>
-      </div>
-      <div class="diya-row">
-        <span class="d-icon unlit-diya">🪔</span>
-        <span class="d-icon big" id="bigDiya" onclick="lightDiyas()">🪔</span>
-        <span class="d-icon unlit-diya">🪔</span>
-      </div>
-    </div>
-    <p class="sub-hint" id="tapHint">Tap the big diya ✨</p>
+<!-- PAGE 2 -->
+<div class="page" id="p2">
+  <div class="art">🏮</div>
+  <h2>Before the diyas,<br>there's you</h2>
+  <p class="hand">Of all the lights tonight, you're the one I can't<br>stop smiling with 💛</p>
+  <button class="btn" onclick="showPage(3)">Fold in ➔</button>
+</div>
 
-    <div id="afterLitBox" style="display:none; margin-top:8px;">
-      <h2 style="color:#ffd700;">Happy Diwali,<br>my bestie 💛</h2>
-      <p class="handwritten" style="margin:4px 0 12px;">I saved the first light for you.</p>
-      <button type="button" class="btn" onclick="goPage(2)">Read what I wrote ➔</button>
-    </div>
+<!-- PAGE 3 -->
+<div class="page" id="p3">
+  <div class="art">💝🍬</div>
+  <h2>My kind of Diwali</h2>
+  <p class="hand">Every little moment with you is what makes<br>this festival feel like home. 🪔</p>
+  <button class="btn" onclick="showPage(4)">Next ➔</button>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="p4">
+  <div class="art">🧡✨</div>
+  <h2>Wherever you are</h2>
+  <p class="hand">Near or far, my Diwali starts the moment I<br>hear you!</p>
+  <button class="btn" onclick="showPage(5)">Next ➔</button>
+</div>
+
+<!-- PAGE 5: Flying Lanterns -->
+<div class="page" id="p5">
+  <h2>A sky full of us ✨</h2>
+  <div class="sky">
+    <div class="l-box" style="left:2%; top:15%;" onclick="fly(this)"><span class="l-msg">May your dreams glow ✨</span><div class="lamp"></div></div>
+    <div class="l-box" style="left:34%; top:35%;" onclick="fly(this)"><span class="l-msg">Sweet moments ahead 💛</span><div class="lamp"></div></div>
+    <div class="l-box" style="left:64%; top:15%;" onclick="fly(this)"><span class="l-msg">Wishing you endless light 🌟</span><div class="lamp"></div></div>
+    <div class="l-box" style="left:12%; top:62%;" onclick="fly(this)"><span class="l-msg">Love, laughter & light 🪔</span><div class="lamp"></div></div>
+    <div class="l-box" style="left:56%; top:62%;" onclick="fly(this)"><span class="l-msg">Always my favorite light ✨</span><div class="lamp"></div></div>
   </div>
-
-  <!-- PAGE 2: Before the diyas -->
-  <div class="screen" id="page-2">
-    <div class="big-art">🏮</div>
-    <h2>Before the diyas,<br>there's you</h2>
-    <p class="handwritten">Of all the lights tonight, you're the one I can't<br>stop smiling with 💛</p>
-    <button type="button" class="btn" onclick="goPage(3)">Fold in ➔</button>
+  <p class="hint" id="hint2">Tap a lantern to set it free ✨</p>
+  <div id="skyDone" style="display:none;">
+    <p class="hand" style="margin:4px 0;">And I'd light a thousand more with you ✨</p>
+    <button class="btn" onclick="showPage(6)">One more thing... ➔</button>
   </div>
+</div>
 
-  <!-- PAGE 3: My kind of Diwali -->
-  <div class="screen" id="page-3">
-    <div class="big-art">💝🍬</div>
-    <h2>My kind of Diwali</h2>
-    <p class="handwritten">Every little moment with you is what makes<br>this festival feel like home. 🪔</p>
-    <button type="button" class="btn" onclick="goPage(4)">Next ➔</button>
+<!-- PAGE 6 -->
+<div class="page" id="p6">
+  <div class="diya big lit" style="margin-bottom:10px;">🪔</div>
+  <p class="hand" style="margin-bottom:4px;">You are and always will be</p>
+  <h1 style="color:#ffd700;">my favourite light ✨</h1>
+  <p style="letter-spacing:2px; font-size:0.8rem; margin:12px 0;">EVERY DIWALI 🪔</p>
+  <button class="btn" onclick="showPage(7)">Happy Diwali, my bestie 💛 ➔</button>
+</div>
+
+<!-- PAGE 7: Outro -->
+<div class="page" id="p7">
+  <h1 style="letter-spacing:3px; font-size:2.3rem;">HAPPY<br>DIWALI</h1>
+  <p class="hand" style="font-size:2rem; margin-top:0;">my bestie</p>
+  <div class="d-row" style="margin:14px 0;">
+    <span class="diya lit">🪔</span><span class="diya big lit">🪔</span><span class="diya lit">🪔</span>
   </div>
+  <p style="font-size:0.95rem;">Thank you for lighting up every single day — love 💛</p>
+  <p class="hint" style="margin-top:14px;">✨ Made with love, just for you ✨</p>
+  <button class="btn" style="margin-top:14px; padding:8px 20px; font-size:0.85rem;" onclick="showPage(0)">Replay ↻</button>
+</div>
 
-  <!-- PAGE 4: Wherever you are -->
-  <div class="screen" id="page-4">
-    <div class="big-art">🧡✨</div>
-    <h2>Wherever you are</h2>
-    <p class="handwritten">Near or far, my Diwali starts the moment I<br>hear you!</p>
-    <button type="button" class="btn" onclick="goPage(5)">Next ➔</button>
-  </div>
-
-  <!-- PAGE 5: Interactive Sky Lanterns -->
-  <div class="screen" id="page-5">
-    <h2>A sky full of us ✨</h2>
-    <div class="sky-box">
-      <div class="lantern-wrap" style="left: 2%; top: 18%;" onclick="flyLantern(this)">
-        <span class="lantern-text">May your dreams glow ✨</span>
-        <div class="lantern-lamp"></div>
-      </div>
-      <div class="lantern-wrap" style="left: 34%; top: 36%;" onclick="flyLantern(this)">
-        <span class="lantern-text">Sweet moments ahead 💛</span>
-        <div class="lantern-lamp"></div>
-      </div>
-      <div class="lantern-wrap" style="left: 64%; top: 16%;" onclick="flyLantern(this)">
-        <span class="lantern-text">Wishing you endless light 🌟</span>
-        <div class="lantern-lamp"></div>
-      </div>
-      <div class="lantern-wrap" style="left: 12%; top: 62%;" onclick="flyLantern(this)">
-        <span class="lantern-text">Love, laughter & light 🪔</span>
-        <div class="lantern-lamp"></div>
-      </div>
-      <div class="lantern-wrap" style="left: 56%; top: 62%;" onclick="flyLantern(this)">
-        <span class="lantern-text">Always my favorite light ✨</span>
-        <div class="lantern-lamp"></div>
-      </div>
-    </div>
-    <p class="sub-hint" id="lanternHint">Tap a lantern to set it free ✨</p>
-    <div id="lanternNextBox" style="display:none;">
-      <p class="handwritten" style="margin:4px 0;">And I'd light a thousand more with you ✨</p>
-      <p style="font-size:0.85rem; margin-bottom:10px;">Every lantern, a piece of us 💛</p>
-      <button type="button" class="btn" onclick="goPage(6)">One more thing... ➔</button>
-    </div>
-  </div>
-
-  <!-- PAGE 6: Favourite Light -->
-  <div class="screen" id="page-6">
-    <div class="d-icon big lit" style="margin-bottom:12px;">🪔</div>
-    <p class="handwritten" style="margin-bottom:4px;">You are<br>and always will be</p>
-    <h1 style="color:#ffd700; font-size:2.1rem;">my favourite light ✨</h1>
-    <p style="letter-spacing:2px; font-size:0.8rem; margin:12px 0;">EVERY DIWALI 🪔</p>
-    <button type="button" class="btn" onclick="goPage(7)">Happy Diwali, my bestie 💛 ➔</button>
-  </div>
-
-  <!-- PAGE 7: Final Screen -->
-  <div class="screen" id="page-7">
-    <h1 style="letter-spacing:3px; font-size:2.3rem;">HAPPY<br>DIWALI</h1>
-    <p class="handwritten" style="font-size:2rem; margin-top:0;">my bestie</p>
-    <div class="diya-row" style="margin:14px 0;">
-      <span class="d-icon lit">🪔</span>
-      <span class="d-icon big lit">🪔</span>
-      <span class="d-icon lit">🪔</span>
-    </div>
-    <p style="margin-top:8px; font-size:0.95rem;">Thank you for lighting up every single day — love 💛</p>
-    <p class="sub-hint" style="margin-top:16px;">✨ Made with love, just for you ✨</p>
-    <button type="button" class="btn" style="margin-top:16px; padding:8px 20px; font-size:0.85rem;" onclick="goPage(0)">Replay ↻</button>
-  </div>
-
-  <!-- Rotating Rangoli -->
-  <svg class="rangoli" viewBox="0 0 200 200">
-    <circle cx="100" cy="100" r="95" fill="#cc2936" stroke="#ffd700" stroke-width="4"/>
-    <circle cx="100" cy="100" r="78" fill="#ff6b00" stroke="#fff" stroke-width="2" stroke-dasharray="6,4"/>
-    <circle cx="100" cy="100" r="60" fill="#6b1d7a" stroke="#ffd700" stroke-width="3"/>
-    <circle cx="100" cy="100" r="42" fill="#00a878" stroke="#ffd700" stroke-width="3" stroke-dasharray="5,5"/>
-    <circle cx="100" cy="100" r="24" fill="#ffd700" stroke="#cc2936" stroke-width="4"/>
-    <circle cx="100" cy="100" r="10" fill="#fff"/>
-  </svg>
-
-  <!-- Fireworks Background Script -->
-  <script>
-    var canvas = document.getElementById('fwCanvas');
-    var ctx = canvas.getContext('2d');
-    var parts = [];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+<svg class="rangoli" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="95" fill="#cc2936" stroke="#ffd700" stroke-width="4"/>
+  <circle cx="100" cy="100" r="78" fill="#ff6b00" stroke="#fff" stroke-width="2" stroke-dasharray="6,4"/>
+  <circle cx="100" cy="100" r="60" fill="#6b1d7a" stroke="#ffd700" stroke-width="3"/>
+  <circle cx="100" cy="100" r="42" fill="#00a878" stroke="#ffd700" stroke-width="3" stroke-dasharray="5,5"/>
+  <circle cx="100" cy="100" r="24" fill="#ffd700" stroke="#cc2936" stroke-width="4"/>
+</svg>
+<script>
+  var count = 0;
+  function showPage(n) {
+    var pages = document.querySelectorAll('.page');
+    var dots = document.querySelectorAll('.dot');
+    for (var i = 0; i < pages.length; i++) {
+      pages[i].classList.remove('active');
+      dots[i].classList.remove('active');
     }
-    window.addEventListener('resize', resize);
-    resize();
+    document.getElementById('p' + n).classList.add('active');
+    dots[n].classList.add('active');
+    boom(window.innerWidth / 2, window.innerHeight * 0.3);
+  }
 
-    window.burstFirework = function(x, y) {
-      var cols = ['#ffd700', '#ff9900', '#ff4d6d', '#fff275'];
-      var c = cols[Math.floor(Math.random() * cols.length)];
-      for (var i = 0; i < 32; i++) {
-        var a = (Math.PI * 2 * i) / 32;
-        var s = 1.5 + Math.random() * 3;
-        parts.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, alpha: 1, c: c });
-      }
-    };
+  function ignite() {
+    var b = document.getElementById('bigD');
+    if (b.classList.contains('lit')) return;
+    b.classList.add('lit');
+    document.getElementById('hint1').style.display = 'none';
+    var s = document.querySelectorAll('.sm');
+    s.forEach(function(el, i) {
+      setTimeout(function() {
+        el.classList.add('lit');
+        boom(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * 0.25);
+      }, (i + 1) * 180);
+    });
+    setTimeout(function() {
+      document.getElementById('litDone').style.display = 'block';
+    }, s.length * 180 + 200);
+  }
 
-    function loop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (Math.random() < 0.03) {
-        window.burstFirework(Math.random() * canvas.width, Math.random() * (canvas.height * 0.5));
-      }
-      for (var i = parts.length - 1; i >= 0; i--) {
-        var p = parts[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.03;
-        p.alpha -= 0.018;
-        if (p.alpha <= 0) {
-          parts.splice(i, 1);
-          continue;
-        }
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = p.c;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      requestAnimationFrame(loop);
+  function fly(el) {
+    if (el.classList.contains('up')) return;
+    el.classList.add('up');
+    count++;
+    boom(window.innerWidth / 2, window.innerHeight * 0.25);
+    if (count >= 5) {
+      document.getElementById('hint2').style.display = 'none';
+      setTimeout(function() {
+        document.getElementById('skyDone').style.display = 'block';
+      }, 700);
     }
-    loop();
-  </script>
+  }
+
+  // Fireworks
+  var c = document.getElementById('cw'), ctx = c.getContext('2d'), pts = [];
+  function rs() { c.width = window.innerWidth; c.height = window.innerHeight; }
+  window.onresize = rs; rs();
+  function boom(x, y) {
+    var cl = ['#ffd700','#ff9900','#ff4d6d','#fff275'][Math.floor(Math.random()*4)];
+    for (var i=0; i<28; i++) {
+      var a = (Math.PI*2*i)/28, sp = 1.5 + Math.random()*3;
+      pts.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, al:1, cl:cl});
+    }
+  }
+  function anim() {
+    ctx.clearRect(0,0,c.width,c.height);
+    if (Math.random() < 0.03) boom(Math.random()*c.width, Math.random()*c.height*0.5);
+    for (var i=pts.length-1; i>=0; i--) {
+      var p = pts[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.al -= 0.02;
+      if (p.al <= 0) { pts.splice(i,1); continue; }
+      ctx.globalAlpha = p.al; ctx.fillStyle = p.cl;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(anim);
+  }
+  anim();
+</script>
 </body>
 </html>
