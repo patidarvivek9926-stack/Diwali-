@@ -1,229 +1,640 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happy Diwali Bestie ❤️</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Diwali Bestie! 🪔</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    body {
+      background: radial-gradient(circle at center, #5e2267 0%, #2d0c36 70%, #1a0522 100%);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
 
-body {
-  min-height: 100vh;
-  background: radial-gradient(circle at center, #521078, #21002f, #100018);
-  color: #ffd76a;
-  font-family: Georgia, serif;
-  text-align: center;
-  overflow-x: hidden;
-}
+    /* Fireworks Canvas */
+    #fireworksCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
 
-.container {
-  min-height: 100vh;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-}
+    /* Top Progress Bar & Controls */
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+    }
 
-h1 {
-  font-size: clamp(30px, 7vw, 55px);
-  color: #ffd76a;
-  text-shadow: 0 0 20px #ff9d00;
-  animation: glow 2s infinite alternate;
-}
+    .dots {
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 8px 14px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+    }
 
-.subtitle {
-  margin-top: 15px;
-  font-size: 20px;
-  color: #fff0c2;
-}
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      transition: all 0.3s ease;
+    }
 
-.heart {
-  font-size: 35px;
-  margin: 20px;
-  animation: heartbeat 1s infinite;
-}
+    .dot.active {
+      width: 22px;
+      border-radius: 10px;
+      background: #ff9d00;
+      box-shadow: 0 0 8px #ff9d00;
+    }
 
-.message {
-  max-width: 500px;
-  line-height: 1.8;
-  font-size: 18px;
-  color: #ffe7ff;
-  margin: 20px auto;
-}
+    .music-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 200, 100, 0.4);
+      color: #ffd700;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 0 12px rgba(255, 165, 0, 0.3);
+    }
 
-.diya {
-  position: relative;
-  width: 130px;
-  height: 65px;
-  background: linear-gradient(#ffb347, #c94b00);
-  border-radius: 0 0 70px 70px;
-  margin: 40px auto;
-  box-shadow: 0 0 35px #ff8c00;
-}
+    /* Screens Container */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 5;
+      max-width: 480px;
+      width: 90%;
+      padding: 20px;
+      animation: fadeIn 0.7s ease forwards;
+    }
 
-.flame {
-  position: absolute;
-  top: -55px;
-  left: 45px;
-  width: 40px;
-  height: 60px;
-  background: linear-gradient(to top, #ff4d00, #ffea00, white);
-  border-radius: 50% 50% 40% 40%;
-  transform-origin: bottom;
-  animation: flicker 0.5s infinite alternate;
-  box-shadow: 0 0 30px orange;
-}
+    .screen.active {
+      display: flex;
+    }
 
-button {
-  padding: 15px 30px;
-  border: 1px solid #ffd76a;
-  background: linear-gradient(45deg, #ff8c00, #ffcf40);
-  color: #450050;
-  font-size: 17px;
-  font-weight: bold;
-  border-radius: 30px;
-  cursor: pointer;
-  box-shadow: 0 0 20px #ff9900;
-  transition: 0.3s;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-button:hover {
-  transform: scale(1.08);
-}
+    /* Typography */
+    h1, h2 {
+      font-family: 'Playfair Display', serif;
+      color: #fff2d6;
+      text-shadow: 0 2px 10px rgba(255, 165, 0, 0.3);
+      margin-bottom: 10px;
+    }
 
-#surprise {
-  display: none;
-  max-width: 500px;
-  margin-top: 25px;
-  color: #fff2a8;
-  font-size: 22px;
-  line-height: 1.7;
-  animation: appear 1s ease;
-}
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.7rem; }
 
-.particle {
-  position: fixed;
-  top: -10px;
-  color: #ffd76a;
-  pointer-events: none;
-  animation: fall linear forwards;
-}
+    .handwritten {
+      font-family: 'Caveat', cursive;
+      font-size: 1.55rem;
+      color: #ffcf70;
+      line-height: 1.35;
+      margin: 12px 0 22px;
+      text-shadow: 0 0 8px rgba(255, 180, 0, 0.3);
+    }
 
-@keyframes glow {
-  from { text-shadow: 0 0 10px orange; }
-  to { text-shadow: 0 0 35px gold, 0 0 60px orange; }
-}
+    .sub-hint {
+      font-size: 0.85rem;
+      color: #e0c8e8;
+      margin-top: 12px;
+    }
 
-@keyframes heartbeat {
-  50% { transform: scale(1.2); }
-}
+    /* Orange Gradient Button */
+    .btn {
+      background: linear-gradient(90deg, #ff6a00, #ff9900);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 120, 0, 0.6);
+      transition: transform 0.25s, box-shadow 0.25s;
+      font-family: 'Poppins', sans-serif;
+      margin-top: 10px;
+    }
 
-@keyframes flicker {
-  from { transform: rotate(-5deg) scale(1); }
-  to { transform: rotate(5deg) scale(1.1); }
-}
+    .btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 28px rgba(255, 150, 0, 0.9);
+    }
 
-@keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(360deg);
-    opacity: 0;
-  }
-}
+    /* SVG Diya Styling */
+    .diya-svg {
+      width: 60px;
+      height: 60px;
+      overflow: visible;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
 
-@keyframes appear {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
+    .diya-svg.big {
+      width: 110px;
+      height: 110px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .diya-svg.big:hover {
+      transform: scale(1.08);
+    }
+
+    .flame {
+      opacity: 0;
+      transform-origin: 50% 80%;
+      transition: opacity 0.5s ease;
+    }
+
+    .lit .flame {
+      opacity: 1;
+      animation: flicker 0.9s infinite alternate;
+    }
+
+    .lit {
+      filter: drop-shadow(0 0 18px rgba(255, 170, 0, 0.85));
+    }
+
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-2deg); }
+      100% { transform: scale(1.1, 1.15) rotate(2deg); }
+    }
+
+    /* Heart Diyas Layout (Screen 1) */
+    .heart-diyas {
+      position: relative;
+      width: 200px;
+      height: 170px;
+      margin-bottom: 15px;
+    }
+
+    .heart-diyas .mini-diya {
+      position: absolute;
+      width: 38px;
+      height: 38px;
+    }
+
+    /* Screen 2 Diyas Grid */
+    .diya-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .diya-row {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Center Illustrations (Screens 3, 4, 5) */
+    .center-art {
+      font-size: 5.2rem;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 25px rgba(255, 180, 0, 0.6));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Sky Lanterns (Screen 6) */
+    .lantern-area {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      margin: 10px 0;
+    }
+
+    .lantern-item {
+      position: absolute;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 3.5s ease-in, opacity 3.5s ease-in;
+    }
+
+    .lantern-body {
+      width: 48px;
+      height: 64px;
+      background: radial-gradient(circle at 50% 70%, #fff7b2 0%, #ffa200 55%, #cc4400 100%);
+      border-radius: 14px 14px 6px 6px;
+      box-shadow: 0 0 25px #ff9900, inset 0 -8px 15px rgba(255,255,255,0.7);
+      position: relative;
+      animation: float 2.8s ease-in-out infinite;
+    }
+
+    .lantern-body::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 25%;
+      width: 50%;
+      height: 6px;
+      background: #ffd700;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #fff;
+    }
+
+    .lantern-msg {
+      font-family: 'Caveat', cursive;
+      font-size: 1.2rem;
+      color: #ffe08a;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease;
+      text-shadow: 0 0 8px #000;
+      margin-bottom: 6px;
+    }
+
+    .lantern-item.released .lantern-msg {
+      opacity: 1;
+      transform: translateY(-5px);
+    }
+
+    .lantern-item.released .lantern-body {
+      transform: translateY(-260px) scale(0.4);
+      opacity: 0;
+      transition: transform 4s ease-in, opacity 4s ease-in;
+    }
+
+    /* Bottom Rotating Rangoli */
+    .rangoli-wrapper {
+      position: absolute;
+      bottom: -95px;
+      width: 210px;
+      height: 210px;
+      z-index: 2;
+      pointer-events: none;
+      animation: spin 25s linear infinite;
+      filter: drop-shadow(0 0 15px rgba(255, 140, 0, 0.5));
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+  <!-- Background Fireworks Canvas -->
+  <canvas id="fireworksCanvas"></canvas>
 
-  <h1>✨ Happy Diwali ✨</h1>
+  <!-- Background Song (Saibo) -->
+  <!-- Apni song file ka naam "saibo.mp3" rakhein ya direct audio URL dalein -->
+  <audio id="bgMusic" loop>
+    <source src="saibo.mp3" type="audio/mpeg">
+  </audio>
 
-  <!-- Change your best friend's name here -->
-  <div class="subtitle">
-    To My Best Friend, BESTIE ❤️
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="dots" id="progressDots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Play/Pause Music">🪔</button>
   </div>
 
-  <div class="heart">💖</div>
+  <!-- Reusable SVG Diya Template -->
+  <svg style="display:none;">
+    <symbol id="diya-icon" viewBox="0 0 100 100">
+      <!-- Glow & Flame -->
+      <g class="flame">
+        <circle cx="50" cy="30" r="22" fill="rgba(255, 180, 0, 0.25)" />
+        <path d="M50 8 C50 8 64 26 64 36 C64 44 57 50 50 50 C43 50 36 44 36 36 C36 26 50 8 50 8 Z" fill="#ff9900" />
+        <path d="M50 16 C50 16 58 28 58 36 C58 41 54 46 50 46 C46 46 42 41 42 36 C42 28 50 16 50 16 Z" fill="#fff275" />
+      </g>
+      <!-- Diya Base -->
+      <ellipse cx="50" cy="52" rx="38" ry="10" fill="#ffb84d" stroke="#cc5200" stroke-width="2"/>
+      <path d="M12 52 C12 78 32 86 50 86 C68 86 88 78 88 52 Z" fill="url(#diyaGrad)" />
+      <defs>
+        <linearGradient id="diyaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#e65c00" />
+          <stop offset="100%" stop-color="#802b00" />
+        </linearGradient>
+      </defs>
+    </symbol>
+  </svg>
 
-  <p class="message">
-    May this Diwali bring endless happiness, beautiful memories
-    and lots of smiles into your life.
-    <br><br>
-    You are not just my best friend,
-    you are one of the most special people in my life.
-    <br><br>
-    Stay happy, keep smiling and never change! 🥹
-  </p>
-
-  <div class="diya">
-    <div class="flame"></div>
+  <!-- SCREEN 1: Intro -->
+  <div class="screen active" id="screen-0">
+    <div class="heart-diyas" id="heartContainer"></div>
+    <h1>Bestie... Happy Diwali 🪔</h1>
+    <p class="handwritten">This year I wanted to light<br>something special just for you 💛</p>
+    <button class="btn" onclick="startExperience()">Open My Diwali ✨ ➔</button>
   </div>
 
-  <button onclick="showSurprise()">
-    Open Your Special Surprise 🎁
-  </button>
+  <!-- SCREEN 2: Light Up Diyas Together -->
+  <div class="screen" id="screen-1">
+    <h2>Let's light up<br>Diwali together 🪔</h2>
+    <div class="diya-group" id="interactiveDiyas">
+      <div class="diya-row">
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+      </div>
+      <div class="diya-row">
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+      </div>
+      <div class="diya-row">
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+        <svg class="diya-svg big" id="mainBigDiya" onclick="lightAllDiyas()"><use href="#diya-icon"></use></svg>
+        <svg class="diya-svg small-diya"><use href="#diya-icon"></use></svg>
+      </div>
+    </div>
+    <p class="sub-hint" id="tapHint">Tap the big diya ✨</p>
 
-  <div id="surprise">
-    🎉 You are my favourite person! 🎉
-    <br><br>
-    No matter how far life takes us,
-    our friendship will always remain special.
-    <br><br>
-    Happy Diwali, Bestie! ❤️
-    <br>
-    — Your Best Friend
+    <div id="afterLitContent" style="display:none; margin-top:10px;">
+      <h2 style="color:#ffd700;">Happy Diwali,<br>my bestie 💛</h2>
+      <p class="handwritten" style="margin:6px 0 14px;">I saved the first light for you.</p>
+      <button class="btn" onclick="nextScreen(2)">Read what I wrote ➔</button>
+    </div>
   </div>
 
-</div>
+  <!-- SCREEN 3: Before the diyas -->
+  <div class="screen" id="screen-2">
+    <div class="center-art">🏮</div>
+    <h2>Before the diyas,<br>there's you</h2>
+    <p class="handwritten">Of all the lights tonight, your vibe is the one<br>that shines the brightest ✨💛</p>
+    <button class="btn" onclick="nextScreen(3)">Fold in ➔</button>
+  </div>
 
-<script>
-function showSurprise() {
-  document.getElementById("surprise").style.display = "block";
+  <!-- SCREEN 4: My kind of Diwali -->
+  <div class="screen" id="screen-3">
+    <div class="center-art">💝🍬</div>
+    <h2>My kind of Diwali</h2>
+    <p class="handwritten">Every crazy memory with you is what makes<br>this festival feel like home. 🪔</p>
+    <button class="btn" onclick="nextScreen(4)">Next ➔</button>
+  </div>
 
-  // Fireworks effect
-  for (let i = 0; i < 80; i++) {
-    createParticle();
-  }
-}
+  <!-- SCREEN 5: Wherever you are -->
+  <div class="screen" id="screen-4">
+    <div class="center-art">🧡✨</div>
+    <h2>Wherever you are</h2>
+    <p class="handwritten">Near or far, my Diwali starts the moment I<br>hear from you!</p>
+    <button class="btn" onclick="nextScreen(5)">Next ➔</button>
+  </div>
 
-function createParticle() {
-  const particle = document.createElement("div");
-  particle.className = "particle";
+  <!-- SCREEN 6: Sky Full of Us (Interactive Lanterns) -->
+  <div class="screen" id="screen-5">
+    <h2>A sky full of us ✨</h2>
+    <div class="lantern-area">
+      <div class="lantern-item" style="left:10%; top:35%;" onclick="releaseLantern(this)">
+        <span class="lantern-msg">May your dreams glow ✨</span>
+        <div class="lantern-body"></div>
+      </div>
+      <div class="lantern-item" style="left:38%; top:50%;" onclick="releaseLantern(this)">
+        <span class="lantern-msg">Sweet moments ahead 💛</span>
+        <div class="lantern-body"></div>
+      </div>
+      <div class="lantern-item" style="left:68%; top:25%;" onclick="releaseLantern(this)">
+        <span class="lantern-msg">Wishing you endless light 🌟</span>
+        <div class="lantern-body"></div>
+      </div>
+      <div class="lantern-item" style="left:22%; top:65%;" onclick="releaseLantern(this)">
+        <span class="lantern-msg">Love, laughter & light 🪔</span>
+        <div class="lantern-body"></div>
+      </div>
+      <div class="lantern-item" style="left:62%; top:65%;" onclick="releaseLantern(this)">
+        <span class="lantern-msg">Always my favorite light ✨</span>
+        <div class="lantern-body"></div>
+      </div>
+    </div>
+    <p class="sub-hint" id="lanternHint">Tap a lantern to set it free ✨</p>
+    <div id="lanternDone" style="display:none;">
+      <p class="handwritten" style="margin:5px 0;">And I'd light a thousand more with you ✨</p>
+      <p style="font-size:0.85rem; margin-bottom:10px;">Every lantern, a piece of our bond 💛</p>
+      <button class="btn" onclick="nextScreen(6)">One more thing... ➔</button>
+    </div>
+  </div>
 
-  const symbols = ["✨", "💛", "🎆", "⭐", "❤️", "🪔"];
-  particle.innerHTML = symbols[
-    Math.floor(Math.random() * symbols.length)
-  ];
+  <!-- SCREEN 7: Favourite Light -->
+  <div class="screen" id="screen-6">
+    <svg class="diya-svg big lit" style="margin-bottom:15px;"><use href="#diya-icon"></use></svg>
+    <p class="handwritten" style="margin-bottom:5px;">You are<br>and always will be</p>
+    <h1 style="color:#ffd700; font-size:2.2rem;">my favourite light ✨</h1>
+    <p style="letter-spacing:2px; font-size:0.8rem; margin:12px 0;">EVERY DIWALI 🪔</p>
+    <button class="btn" onclick="nextScreen(7)">Happy Diwali, my bestie 💛 ➔</button>
+  </div>
 
-  particle.style.left = Math.random() * 100 + "vw";
-  particle.style.animationDuration =
-    (2 + Math.random() * 4) + "s";
+  <!-- SCREEN 8: Final Outro -->
+  <div class="screen" id="screen-7">
+    <h1 style="letter-spacing:3px; font-size:2.4rem;">HAPPY<br>DIWALI</h1>
+    <p class="handwritten" style="font-size:2rem; margin-top:0;">my bestie</p>
+    <div class="diya-row" style="margin:15px 0;">
+      <svg class="diya-svg lit"><use href="#diya-icon"></use></svg>
+      <svg class="diya-svg big lit"><use href="#diya-icon"></use></svg>
+      <svg class="diya-svg lit"><use href="#diya-icon"></use></svg>
+    </div>
+    <p style="margin-top:10px; font-size:0.95rem;">Thank you for lighting up every single day — love 💛</p>
+    <p class="sub-hint" style="margin-top:20px;">✨ Made with love, just for my Best Friend ✨</p>
+    <button class="btn" style="margin-top:20px; padding:8px 20px; font-size:0.85rem;" onclick="location.reload()">Replay ↻</button>
+  </div>
 
-  particle.style.fontSize =
-    (12 + Math.random() * 25) + "px";
+  <!-- Bottom Rotating Rangoli SVG -->
+  <svg class="rangoli-wrapper" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="95" fill="#cc2936" stroke="#ffd700" stroke-width="4"/>
+    <circle cx="100" cy="100" r="78" fill="#ff6b00" stroke="#fff" stroke-width="2" stroke-dasharray="6,4"/>
+    <circle cx="100" cy="100" r="60" fill="#6b1d7a" stroke="#ffd700" stroke-width="3"/>
+    <circle cx="100" cy="100" r="42" fill="#00a878" stroke="#ffd700" stroke-width="3" stroke-dasharray="5,5"/>
+    <circle cx="100" cy="100" r="24" fill="#ffd700" stroke="#cc2936" stroke-width="4"/>
+    <circle cx="100" cy="100" r="10" fill="#fff"/>
+  </svg>
 
-  document.body.appendChild(particle);
+  <script>
+    // 1. Generate Heart-Shaped Diyas on Screen 1
+    const heartCoords = [
+      {x: 55, y: 15}, {x: 105, y: 15},
+      {x: 25, y: 40}, {x: 80, y: 35}, {x: 135, y: 40},
+      {x: 40, y: 75}, {x: 120, y: 75},
+      {x: 60, y: 105}, {x: 100, y: 105},
+      {x: 80, y: 130}
+    ];
+    const heartContainer = document.getElementById('heartContainer');
+    heartCoords.forEach(pos => {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "diya-svg mini-diya lit");
+      svg.style.left = pos.x + "px";
+      svg.style.top = pos.y + "px";
+      svg.innerHTML = `<use href="#diya-icon"></use>`;
+      heartContainer.appendChild(svg);
+    });
 
-  setTimeout(() => particle.remove(), 6000);
-}
+    // 2. Music Control
+    const bgMusic = document.getElementById('bgMusic');
+    let isPlaying = false;
 
-// Continuous golden particles
-setInterval(createParticle, 250);
-</script>
+    function startExperience() {
+      bgMusic.play().then(() => {
+        isPlaying = true;
+      }).catch(() => {
+        console.log("Audio file 'saibo.mp3' not found or blocked.");
+      });
+      nextScreen(1);
+    }
 
+    function toggleMusic() {
+      if (bgMusic.paused) {
+        bgMusic.play();
+      } else {
+        bgMusic.pause();
+      }
+    }
+
+    // 3. Screen Navigation
+    function nextScreen(index) {
+      document.querySelectorAll('.screen').forEach((scr, i) => {
+        scr.classList.toggle('active', i === index);
+      });
+      document.querySelectorAll('.dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+      spawnFirework(window.innerWidth / 2, window.innerHeight / 3);
+    }
+
+    // 4. Screen 2: Light Up All Diyas
+    function lightAllDiyas() {
+      const mainDiya = document.getElementById('mainBigDiya');
+      if (mainDiya.classList.contains('lit')) return;
+      mainDiya.classList.add('lit');
+      document.getElementById('tapHint').style.display = 'none';
+
+      const smallDiyas = document.querySelectorAll('.small-diya');
+      smallDiyas.forEach((d, idx) => {
+        setTimeout(() => {
+          d.classList.add('lit');
+          spawnFirework(
+            window.innerWidth * (0.3 + Math.random() * 0.4),
+            window.innerHeight * (0.2 + Math.random() * 0.3)
+          );
+        }, (idx + 1) * 220);
+      });
+
+      setTimeout(() => {
+        document.getElementById('afterLitContent').style.display = 'block';
+      }, smallDiyas.length * 220 + 300);
+    }
+
+    // 5. Screen 6: Release Sky Lanterns
+    let releasedCount = 0;
+    function releaseLantern(el) {
+      if (el.classList.contains('released')) return;
+      el.classList.add('released');
+      releasedCount++;
+      spawnFirework(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * 0.25);
+
+      if (releasedCount >= 5) {
+        document.getElementById('lanternHint').style.display = 'none';
+        setTimeout(() => {
+          document.getElementById('lanternDone').style.display = 'block';
+        }, 900);
+      }
+    }
+
+    // 6. Background Fireworks Animation
+    const canvas = document.getElementById('fireworksCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function spawnFirework(x, y) {
+      const colors = ['#ffd700', '#ff9900', '#ff4d6d', '#fff275', '#ffae00'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      for (let i = 0; i < 38; i++) {
+        const angle = (Math.PI * 2 * i) / 38;
+        const speed = 1.5 + Math.random() * 3.5;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          color
+        });
+      }
+    }
+
+    function animateFireworks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (Math.random() < 0.035) {
+        spawnFirework(
+          Math.random() * canvas.width,
+          Math.random() * (canvas.height * 0.55)
+        );
+      }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03; // gravity
+        p.alpha -= 0.016;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(animateFireworks);
+    }
+    animateFireworks();
+  </script>
 </body>
 </html>
