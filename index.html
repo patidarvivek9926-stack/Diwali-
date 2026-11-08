@@ -5,6 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Diwali Bestie! 🪔</title>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- CORE SCRIPT IN HEAD SO BUTTONS ALWAYS WORK -->
+  <script>
+    var releasedCount = 0;
+
+    function goPage(num) {
+      var screens = document.querySelectorAll('.screen');
+      var dots = document.querySelectorAll('.dot');
+      for (var i = 0; i < screens.length; i++) {
+        screens[i].classList.remove('active');
+        if (dots[i]) dots[i].classList.remove('active');
+      }
+      var target = document.getElementById('page-' + num);
+      if (target) target.classList.add('active');
+      if (dots[num]) dots[num].classList.add('active');
+      if (window.burstFirework) {
+        window.burstFirework(window.innerWidth / 2, window.innerHeight * 0.3);
+      }
+    }
+
+    function lightDiyas() {
+      var big = document.getElementById('bigDiya');
+      if (big.classList.contains('lit')) return;
+      big.classList.add('lit');
+      document.getElementById('tapHint').style.display = 'none';
+
+      var smalls = document.querySelectorAll('.unlit-diya');
+      smalls.forEach(function(d, idx) {
+        setTimeout(function() {
+          d.classList.add('lit');
+          if (window.burstFirework) {
+            window.burstFirework(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * 0.25);
+          }
+        }, (idx + 1) * 180);
+      });
+
+      setTimeout(function() {
+        document.getElementById('afterLitBox').style.display = 'block';
+      }, smalls.length * 180 + 250);
+    }
+
+    function flyLantern(el) {
+      if (el.classList.contains('flown')) return;
+      el.classList.add('flown');
+      releasedCount++;
+      if (window.burstFirework) {
+        window.burstFirework(window.innerWidth * 0.5, window.innerHeight * 0.25);
+      }
+      if (releasedCount >= 5) {
+        document.getElementById('lanternHint').style.display = 'none';
+        setTimeout(function() {
+          document.getElementById('lanternNextBox').style.display = 'block';
+        }, 800);
+      }
+    }
+  </script>
+
   <style>
     * {
       margin: 0;
@@ -27,8 +84,7 @@
       position: relative;
     }
 
-    /* Fireworks Canvas */
-    #fireworksCanvas {
+    #fwCanvas {
       position: absolute;
       top: 0;
       left: 0;
@@ -38,23 +94,19 @@
       z-index: 1;
     }
 
-    /* Top Progress Bar */
+    /* Top Dots */
     .top-bar {
       position: absolute;
-      top: 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      z-index: 10;
+      top: 22px;
+      z-index: 20;
     }
 
     .dots {
       display: flex;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.14);
       padding: 8px 14px;
       border-radius: 20px;
-      backdrop-filter: blur(5px);
     }
 
     .dot {
@@ -62,7 +114,7 @@
       height: 8px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.35);
-      transition: all 0.3s ease;
+      transition: all 0.3s;
     }
 
     .dot.active {
@@ -72,303 +124,219 @@
       box-shadow: 0 0 8px #ff9d00;
     }
 
-    /* Screens Container */
+    /* Screens */
     .screen {
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      z-index: 5;
-      max-width: 480px;
+      z-index: 10;
       width: 92%;
-      padding: 20px;
-      animation: fadeIn 0.6s ease forwards;
+      max-width: 440px;
+      padding: 15px;
+      animation: popIn 0.45s ease;
     }
 
     .screen.active {
       display: flex;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Typography */
     h1, h2 {
       font-family: 'Playfair Display', serif;
       color: #fff2d6;
-      text-shadow: 0 2px 10px rgba(255, 165, 0, 0.3);
-      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(255, 165, 0, 0.35);
+      margin-bottom: 8px;
     }
 
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.7rem; }
+    h1 { font-size: 1.95rem; }
+    h2 { font-size: 1.65rem; }
 
     .handwritten {
       font-family: 'Caveat', cursive;
       font-size: 1.55rem;
       color: #ffcf70;
       line-height: 1.35;
-      margin: 10px 0 20px;
-      text-shadow: 0 0 8px rgba(255, 180, 0, 0.3);
+      margin: 8px 0 18px;
     }
 
     .sub-hint {
       font-size: 0.85rem;
       color: #e0c8e8;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
-    /* Orange Gradient Button */
     .btn {
+      position: relative;
+      z-index: 25;
       background: linear-gradient(90deg, #ff6a00, #ff9900);
       color: #fff;
       border: none;
-      padding: 12px 28px;
+      padding: 13px 28px;
       font-size: 1rem;
       font-weight: 600;
       border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 0 20px rgba(255, 120, 0, 0.6);
-      transition: transform 0.25s, box-shadow 0.25s;
+      box-shadow: 0 0 22px rgba(255, 120, 0, 0.65);
       font-family: 'Poppins', sans-serif;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
-    .btn:hover {
-      transform: scale(1.06);
-      box-shadow: 0 0 28px rgba(255, 150, 0, 0.9);
+    .btn:active {
+      transform: scale(0.95);
     }
 
-    /* =========================================
-       100% VISIBLE PURE CSS DIYA (NO SVG BUGS)
-       ========================================= */
-    .css-diya {
+    /* =======================================
+       EMOJI DIYAS (100% VISIBLE EVERYWHERE)
+       ======================================= */
+    .heart-box {
       position: relative;
-      width: 56px;
-      height: 46px;
-      display: inline-block;
-      vertical-align: middle;
+      width: 210px;
+      height: 175px;
+      margin-bottom: 12px;
     }
 
-    /* Diya Mitti Base (Bowl) */
-    .css-diya .bowl {
+    .h-diya {
       position: absolute;
-      bottom: 0;
-      left: 4px;
-      width: 48px;
-      height: 24px;
-      background: linear-gradient(to bottom, #ff9933 0%, #cc4400 55%, #7a2200 100%);
-      border-radius: 4px 4px 28px 28px;
-      border-top: 4px solid #ffcc66;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px #ff9900);
+      animation: pulseGlow 1.2s infinite alternate;
     }
 
-    /* Gold Design Line on Bowl */
-    .css-diya .bowl::after {
-      content: '';
-      position: absolute;
-      top: 5px;
-      left: 15%;
-      width: 70%;
-      height: 6px;
-      border-bottom: 2px solid #ffd700;
-      border-radius: 50%;
-      opacity: 0.85;
+    @keyframes pulseGlow {
+      from { transform: scale(1); filter: drop-shadow(0 0 6px #ff9900); }
+      to { transform: scale(1.12); filter: drop-shadow(0 0 16px #ffd700); }
     }
 
-    /* Diya Flame (Batti) */
-    .css-diya .flame {
-      position: absolute;
-      bottom: 21px;
-      left: 50%;
-      transform: translateX(-50%) scale(0);
-      width: 15px;
-      height: 24px;
-      background: radial-gradient(circle at 50% 75%, #ffffff 0%, #fff275 35%, #ff9900 75%, transparent 100%);
-      border-radius: 50% 50% 35% 35% / 65% 65% 35% 35%;
-      box-shadow: 0 0 14px #ff9900, 0 0 28px #ffae00;
-      opacity: 0;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      transform-origin: bottom center;
-    }
-
-    /* When Diya is Lit */
-    .css-diya.lit .flame {
-      opacity: 1;
-      transform: translateX(-50%) scale(1);
-      animation: flameFlicker 0.8s infinite alternate ease-in-out;
-    }
-
-    .css-diya.lit .bowl {
-      box-shadow: 0 0 20px rgba(255, 153, 0, 0.75), 0 5px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    @keyframes flameFlicker {
-      0% { transform: translateX(-50%) scale(1) rotate(-3deg); }
-      100% { transform: translateX(-50%) scale(1.1, 1.16) rotate(3deg); }
-    }
-
-    /* Mini Diya for Heart Shape (Screen 1) */
-    .css-diya.mini {
-      position: absolute;
-      width: 38px;
-      height: 32px;
-    }
-    .css-diya.mini .bowl {
-      left: 3px;
-      width: 32px;
-      height: 16px;
-      border-top-width: 3px;
-    }
-    .css-diya.mini .flame {
-      bottom: 14px;
-      width: 11px;
-      height: 18px;
-    }
-
-    /* Big Diya (Screen 2, 7, 8) */
-    .css-diya.big {
-      width: 96px;
-      height: 78px;
-      cursor: pointer;
-      transition: transform 0.25s ease;
-    }
-    .css-diya.big:hover {
-      transform: scale(1.08);
-    }
-    .css-diya.big .bowl {
-      left: 6px;
-      width: 84px;
-      height: 40px;
-      border-radius: 6px 6px 46px 46px;
-      border-top-width: 6px;
-    }
-    .css-diya.big .flame {
-      bottom: 35px;
-      width: 24px;
-      height: 40px;
-    }
-
-    /* Heart Diyas Container (Screen 1) */
-    .heart-diyas {
-      position: relative;
-      width: 220px;
-      height: 185px;
-      margin-bottom: 10px;
-    }
-
-    /* Screen 2 Diyas Grid */
-    .diya-group {
+    /* Screen 2 Interactive Diyas */
+    .diya-grid {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      margin: 15px 0;
+      gap: 10px;
+      margin: 12px 0;
     }
 
     .diya-row {
       display: flex;
-      gap: 24px;
-      align-items: flex-end;
+      gap: 22px;
+      align-items: center;
       justify-content: center;
     }
 
-    /* Center Illustrations (Screens 3, 4, 5) */
-    .center-art {
-      font-size: 5.2rem;
-      margin-bottom: 15px;
-      filter: drop-shadow(0 0 25px rgba(255, 180, 0, 0.6));
-      animation: floatArt 3s ease-in-out infinite;
+    .d-icon {
+      font-size: 38px;
+      transition: all 0.4s ease;
+      filter: grayscale(85%) brightness(0.45);
+      opacity: 0.6;
     }
 
-    @keyframes floatArt {
+    .d-icon.big {
+      font-size: 68px;
+      cursor: pointer;
+      filter: grayscale(60%) brightness(0.65);
+      opacity: 0.85;
+    }
+
+    .d-icon.lit {
+      filter: grayscale(0%) brightness(1.15) drop-shadow(0 0 18px #ffae00);
+      opacity: 1;
+      animation: pulseGlow 1.1s infinite alternate;
+    }
+
+    /* Center Art */
+    .big-art {
+      font-size: 5rem;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 22px rgba(255, 180, 0, 0.6));
+      animation: floatUp 3s ease-in-out infinite;
+    }
+
+    @keyframes floatUp {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
 
-    /* =========================================
-       SKY LANTERNS (SCREEN 6) - SMOOTH FLY UP
-       ========================================= */
-    .lantern-area {
+    /* =======================================
+       SKY LANTERNS (SMOOTH UPWARD FLIGHT)
+       ======================================= */
+    .sky-box {
       position: relative;
       width: 100%;
-      height: 260px;
-      margin: 10px 0;
+      height: 250px;
+      margin: 8px 0;
     }
 
-    .lantern-item {
+    .lantern-wrap {
       position: absolute;
-      cursor: pointer;
+      width: 125px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      width: 130px;
+      cursor: pointer;
     }
 
-    .lantern-body {
-      width: 48px;
-      height: 64px;
-      background: radial-gradient(circle at 50% 70%, #fff7b2 0%, #ffa200 55%, #cc4400 100%);
-      border-radius: 14px 14px 6px 6px;
-      box-shadow: 0 0 25px #ff9900, inset 0 -8px 15px rgba(255, 255, 255, 0.7);
+    .lantern-lamp {
+      width: 44px;
+      height: 60px;
+      background: radial-gradient(circle at 50% 70%, #fff9b0 0%, #ff9900 60%, #cc3300 100%);
+      border-radius: 15px 15px 6px 6px;
+      box-shadow: 0 0 22px #ff9900, inset 0 -8px 14px #fff;
+      transition: transform 3.2s ease-in, opacity 3.2s ease-in;
       position: relative;
-      transition: transform 3.5s ease-in, opacity 3.5s ease-in;
     }
 
-    .lantern-body::after {
+    .lantern-lamp::after {
       content: '';
       position: absolute;
       bottom: -4px;
       left: 25%;
       width: 50%;
       height: 6px;
-      background: #ffd700;
+      background: #fff;
       border-radius: 50%;
-      box-shadow: 0 0 12px #fff;
+      box-shadow: 0 0 12px #ffd700;
     }
 
-    .lantern-msg {
+    .lantern-text {
       font-family: 'Caveat', cursive;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       color: #ffe08a;
       white-space: nowrap;
       opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
+      transition: opacity 0.5s ease;
       text-shadow: 0 2px 8px #000;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       pointer-events: none;
     }
 
-    /* Fly Up Trigger on Click */
-    .lantern-item.released {
+    .lantern-wrap.flown {
       pointer-events: none;
     }
 
-    .lantern-item.released .lantern-body {
-      transform: translateY(-380px) scale(0.3);
+    .lantern-wrap.flown .lantern-lamp {
+      transform: translateY(-380px) scale(0.25);
       opacity: 0;
     }
 
-    .lantern-item.released .lantern-msg {
+    .lantern-wrap.flown .lantern-text {
       opacity: 1;
-      transform: translateY(20px);
     }
 
-    /* Bottom Rotating Rangoli */
-    .rangoli-wrapper {
+    /* Bottom Rangoli */
+    .rangoli {
       position: absolute;
       bottom: -95px;
-      width: 210px;
-      height: 210px;
+      width: 200px;
+      height: 200px;
       z-index: 2;
       pointer-events: none;
       animation: spin 25s linear infinite;
-      filter: drop-shadow(0 0 15px rgba(255, 140, 0, 0.5));
     }
 
     @keyframes spin {
@@ -378,12 +346,11 @@
 </head>
 <body>
 
-  <!-- Background Fireworks Canvas -->
-  <canvas id="fireworksCanvas"></canvas>
+  <canvas id="fwCanvas"></canvas>
 
-  <!-- Top Bar -->
+  <!-- Progress Dots -->
   <div class="top-bar">
-    <div class="dots" id="progressDots">
+    <div class="dots">
       <div class="dot active"></div>
       <div class="dot"></div>
       <div class="dot"></div>
@@ -395,141 +362,135 @@
     </div>
   </div>
 
-  <!-- SCREEN 1: Intro (Heart-Shaped Lit Diyas) -->
-  <div class="screen active" id="screen-0">
-    <div class="heart-diyas">
-      <!-- Top Two Peaks of Heart -->
-      <div class="css-diya mini lit" style="left: 48px; top: 12px;"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya mini lit" style="left: 132px; top: 12px;"><div class="flame"></div><div class="bowl"></div></div>
-      <!-- Upper Middle Row -->
-      <div class="css-diya mini lit" style="left: 16px; top: 42px;"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya mini lit" style="left: 90px; top: 36px;"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya mini lit" style="left: 164px; top: 42px;"><div class="flame"></div><div class="bowl"></div></div>
-      <!-- Lower Middle Row -->
-      <div class="css-diya mini lit" style="left: 34px; top: 82px;"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya mini lit" style="left: 146px; top: 82px;"><div class="flame"></div><div class="bowl"></div></div>
-      <!-- Bottom Taper -->
-      <div class="css-diya mini lit" style="left: 60px; top: 116px;"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya mini lit" style="left: 120px; top: 116px;"><div class="flame"></div><div class="bowl"></div></div>
-      <!-- Heart Tip -->
-      <div class="css-diya mini lit" style="left: 90px; top: 146px;"><div class="flame"></div><div class="bowl"></div></div>
+  <!-- PAGE 0: Intro with Heart Diyas -->
+  <div class="screen active" id="page-0">
+    <div class="heart-box">
+      <span class="h-diya" style="left: 42px; top: 8px;">🪔</span>
+      <span class="h-diya" style="left: 132px; top: 8px;">🪔</span>
+      <span class="h-diya" style="left: 12px; top: 38px;">🪔</span>
+      <span class="h-diya" style="left: 87px; top: 32px;">🪔</span>
+      <span class="h-diya" style="left: 162px; top: 38px;">🪔</span>
+      <span class="h-diya" style="left: 28px; top: 78px;">🪔</span>
+      <span class="h-diya" style="left: 146px; top: 78px;">🪔</span>
+      <span class="h-diya" style="left: 55px; top: 112px;">🪔</span>
+      <span class="h-diya" style="left: 118px; top: 112px;">🪔</span>
+      <span class="h-diya" style="left: 87px; top: 142px;">🪔</span>
     </div>
-
     <h1>Bestie... Happy Diwali 🪔</h1>
     <p class="handwritten">This year I wanted to light<br>something special just for you 💛</p>
-    <button class="btn" onclick="nextScreen(1)">Open My Diwali ✨ ➔</button>
+    <button type="button" class="btn" onclick="goPage(1)">Open My Diwali ✨ ➔</button>
   </div>
 
-  <!-- SCREEN 2: Light Up Diyas Together -->
-  <div class="screen" id="screen-1">
+  <!-- PAGE 1: Tap the Big Diya -->
+  <div class="screen" id="page-1">
     <h2>Let's light up<br>Diwali together 🪔</h2>
-    <div class="diya-group">
+    <div class="diya-grid">
       <div class="diya-row">
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
+        <span class="d-icon unlit-diya">🪔</span>
+        <span class="d-icon unlit-diya">🪔</span>
       </div>
       <div class="diya-row">
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
+        <span class="d-icon unlit-diya">🪔</span>
+        <span class="d-icon unlit-diya">🪔</span>
+        <span class="d-icon unlit-diya">🪔</span>
       </div>
       <div class="diya-row">
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
-        <div class="css-diya big" id="mainBigDiya" onclick="lightAllDiyas()"><div class="flame"></div><div class="bowl"></div></div>
-        <div class="css-diya small-diya"><div class="flame"></div><div class="bowl"></div></div>
+        <span class="d-icon unlit-diya">🪔</span>
+        <span class="d-icon big" id="bigDiya" onclick="lightDiyas()">🪔</span>
+        <span class="d-icon unlit-diya">🪔</span>
       </div>
     </div>
     <p class="sub-hint" id="tapHint">Tap the big diya ✨</p>
 
-    <div id="afterLitContent" style="display:none; margin-top:10px;">
+    <div id="afterLitBox" style="display:none; margin-top:8px;">
       <h2 style="color:#ffd700;">Happy Diwali,<br>my bestie 💛</h2>
-      <p class="handwritten" style="margin:6px 0 14px;">I saved the first light for you.</p>
-      <button class="btn" onclick="nextScreen(2)">Read what I wrote ➔</button>
+      <p class="handwritten" style="margin:4px 0 12px;">I saved the first light for you.</p>
+      <button type="button" class="btn" onclick="goPage(2)">Read what I wrote ➔</button>
     </div>
   </div>
 
-  <!-- SCREEN 3: Before the diyas -->
-  <div class="screen" id="screen-2">
-    <div class="center-art">🏮</div>
+  <!-- PAGE 2: Before the diyas -->
+  <div class="screen" id="page-2">
+    <div class="big-art">🏮</div>
     <h2>Before the diyas,<br>there's you</h2>
     <p class="handwritten">Of all the lights tonight, you're the one I can't<br>stop smiling with 💛</p>
-    <button class="btn" onclick="nextScreen(3)">Fold in ➔</button>
+    <button type="button" class="btn" onclick="goPage(3)">Fold in ➔</button>
   </div>
 
-  <!-- SCREEN 4: My kind of Diwali -->
-  <div class="screen" id="screen-3">
-    <div class="center-art">💝🍬</div>
+  <!-- PAGE 3: My kind of Diwali -->
+  <div class="screen" id="page-3">
+    <div class="big-art">💝🍬</div>
     <h2>My kind of Diwali</h2>
     <p class="handwritten">Every little moment with you is what makes<br>this festival feel like home. 🪔</p>
-    <button class="btn" onclick="nextScreen(4)">Next ➔</button>
+    <button type="button" class="btn" onclick="goPage(4)">Next ➔</button>
   </div>
 
-  <!-- SCREEN 5: Wherever you are -->
-  <div class="screen" id="screen-4">
-    <div class="center-art">🧡✨</div>
+  <!-- PAGE 4: Wherever you are -->
+  <div class="screen" id="page-4">
+    <div class="big-art">🧡✨</div>
     <h2>Wherever you are</h2>
     <p class="handwritten">Near or far, my Diwali starts the moment I<br>hear you!</p>
-    <button class="btn" onclick="nextScreen(5)">Next ➔</button>
+    <button type="button" class="btn" onclick="goPage(5)">Next ➔</button>
   </div>
 
-  <!-- SCREEN 6: Sky Full of Us (Interactive Lanterns) -->
-  <div class="screen" id="screen-5">
+  <!-- PAGE 5: Interactive Sky Lanterns -->
+  <div class="screen" id="page-5">
     <h2>A sky full of us ✨</h2>
-    <div class="lantern-area">
-      <div class="lantern-item" style="left: 4%; top: 20%;" onclick="releaseLantern(this)">
-        <span class="lantern-msg">May your dreams glow ✨</span>
-        <div class="lantern-body"></div>
+    <div class="sky-box">
+      <div class="lantern-wrap" style="left: 2%; top: 18%;" onclick="flyLantern(this)">
+        <span class="lantern-text">May your dreams glow ✨</span>
+        <div class="lantern-lamp"></div>
       </div>
-      <div class="lantern-item" style="left: 35%; top: 38%;" onclick="releaseLantern(this)">
-        <span class="lantern-msg">Sweet moments ahead 💛</span>
-        <div class="lantern-body"></div>
+      <div class="lantern-wrap" style="left: 34%; top: 36%;" onclick="flyLantern(this)">
+        <span class="lantern-text">Sweet moments ahead 💛</span>
+        <div class="lantern-lamp"></div>
       </div>
-      <div class="lantern-item" style="left: 64%; top: 18%;" onclick="releaseLantern(this)">
-        <span class="lantern-msg">Wishing you endless light 🌟</span>
-        <div class="lantern-body"></div>
+      <div class="lantern-wrap" style="left: 64%; top: 16%;" onclick="flyLantern(this)">
+        <span class="lantern-text">Wishing you endless light 🌟</span>
+        <div class="lantern-lamp"></div>
       </div>
-      <div class="lantern-item" style="left: 14%; top: 62%;" onclick="releaseLantern(this)">
-        <span class="lantern-msg">Love, laughter & light 🪔</span>
-        <div class="lantern-body"></div>
+      <div class="lantern-wrap" style="left: 12%; top: 62%;" onclick="flyLantern(this)">
+        <span class="lantern-text">Love, laughter & light 🪔</span>
+        <div class="lantern-lamp"></div>
       </div>
-      <div class="lantern-item" style="left: 56%; top: 62%;" onclick="releaseLantern(this)">
-        <span class="lantern-msg">Always my favorite light ✨</span>
-        <div class="lantern-body"></div>
+      <div class="lantern-wrap" style="left: 56%; top: 62%;" onclick="flyLantern(this)">
+        <span class="lantern-text">Always my favorite light ✨</span>
+        <div class="lantern-lamp"></div>
       </div>
     </div>
     <p class="sub-hint" id="lanternHint">Tap a lantern to set it free ✨</p>
-    <div id="lanternDone" style="display:none;">
-      <p class="handwritten" style="margin:5px 0;">And I'd light a thousand more with you ✨</p>
+    <div id="lanternNextBox" style="display:none;">
+      <p class="handwritten" style="margin:4px 0;">And I'd light a thousand more with you ✨</p>
       <p style="font-size:0.85rem; margin-bottom:10px;">Every lantern, a piece of us 💛</p>
-      <button class="btn" onclick="nextScreen(6)">One more thing... ➔</button>
+      <button type="button" class="btn" onclick="goPage(6)">One more thing... ➔</button>
     </div>
   </div>
 
-  <!-- SCREEN 7: Favourite Light -->
-  <div class="screen" id="screen-6">
-    <div class="css-diya big lit" style="margin-bottom:18px;"><div class="flame"></div><div class="bowl"></div></div>
-    <p class="handwritten" style="margin-bottom:5px;">You are<br>and always will be</p>
-    <h1 style="color:#ffd700; font-size:2.2rem;">my favourite light ✨</h1>
+  <!-- PAGE 6: Favourite Light -->
+  <div class="screen" id="page-6">
+    <div class="d-icon big lit" style="margin-bottom:12px;">🪔</div>
+    <p class="handwritten" style="margin-bottom:4px;">You are<br>and always will be</p>
+    <h1 style="color:#ffd700; font-size:2.1rem;">my favourite light ✨</h1>
     <p style="letter-spacing:2px; font-size:0.8rem; margin:12px 0;">EVERY DIWALI 🪔</p>
-    <button class="btn" onclick="nextScreen(7)">Happy Diwali, my bestie 💛 ➔</button>
+    <button type="button" class="btn" onclick="goPage(7)">Happy Diwali, my bestie 💛 ➔</button>
   </div>
 
-  <!-- SCREEN 8: Final Outro -->
-  <div class="screen" id="screen-7">
-    <h1 style="letter-spacing:3px; font-size:2.4rem;">HAPPY<br>DIWALI</h1>
+  <!-- PAGE 7: Final Screen -->
+  <div class="screen" id="page-7">
+    <h1 style="letter-spacing:3px; font-size:2.3rem;">HAPPY<br>DIWALI</h1>
     <p class="handwritten" style="font-size:2rem; margin-top:0;">my bestie</p>
-    <div class="diya-row" style="margin:18px 0;">
-      <div class="css-diya lit"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya big lit"><div class="flame"></div><div class="bowl"></div></div>
-      <div class="css-diya lit"><div class="flame"></div><div class="bowl"></div></div>
+    <div class="diya-row" style="margin:14px 0;">
+      <span class="d-icon lit">🪔</span>
+      <span class="d-icon big lit">🪔</span>
+      <span class="d-icon lit">🪔</span>
     </div>
-    <p style="margin-top:10px; font-size:0.95rem;">Thank you for lighting up every single day — love 💛</p>
-    <p class="sub-hint" style="margin-top:20px;">✨ Made with love, just for you ✨</p>
-    <button class="btn" style="margin-top:20px; padding:8px 20px; font-size:0.85rem;" onclick="location.reload()">Replay ↻</button>
+    <p style="margin-top:8px; font-size:0.95rem;">Thank you for lighting up every single day — love 💛</p>
+    <p class="sub-hint" style="margin-top:16px;">✨ Made with love, just for you ✨</p>
+    <button type="button" class="btn" style="margin-top:16px; padding:8px 20px; font-size:0.85rem;" onclick="goPage(0)">Replay ↻</button>
   </div>
 
-  <!-- Bottom Rotating Rangoli SVG -->
-  <svg class="rangoli-wrapper" viewBox="0 0 200 200">
+  <!-- Rotating Rangoli -->
+  <svg class="rangoli" viewBox="0 0 200 200">
     <circle cx="100" cy="100" r="95" fill="#cc2936" stroke="#ffd700" stroke-width="4"/>
     <circle cx="100" cy="100" r="78" fill="#ff6b00" stroke="#fff" stroke-width="2" stroke-dasharray="6,4"/>
     <circle cx="100" cy="100" r="60" fill="#6b1d7a" stroke="#ffd700" stroke-width="3"/>
@@ -538,75 +499,53 @@
     <circle cx="100" cy="100" r="10" fill="#fff"/>
   </svg>
 
+  <!-- Fireworks Background Script -->
   <script>
-    // 1. Screen Navigation
-    function nextScreen(index) {
-      document.querySelectorAll('.screen').forEach((scr, i) => {
-        scr.classList.toggle('active', i === index);
-      });
-      document.querySelectorAll('.dot').forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-      });
-      spawnFirework(window.innerWidth / 2, window.innerHeight / 3);
-    }
+    var canvas = document.getElementById('fwCanvas');
+    var ctx = canvas.getContext('2d');
+    var parts = [];
 
-    // 2. Screen 2: Light Up All Diyas
-    function lightAllDiyas() {
-      const mainDiya = document.getElementById('mainBigDiya');
-      if (mainDiya.classList.contains('lit')) return;
-      mainDiya.classList.add('lit');
-      document.getElementById('tapHint').style.display = 'none';
-
-      const smallDiyas = document.querySelectorAll('.small-diya');
-      smallDiyas.forEach((d, idx) => {
-        setTimeout(() => {
-          d.classList.add('lit');
-          spawnFirework(
-            window.innerWidth * (0.3 + Math.random() * 0.4),
-            window.innerHeight * (0.2 + Math.random() * 0.3)
-          );
-        }, (idx + 1) * 220);
-      });
-
-      setTimeout(() => {
-        document.getElementById('afterLitContent').style.display = 'block';
-      }, smallDiyas.length * 220 + 300);
-    }
-
-    // 3. Screen 6: Release Sky Lanterns
-    let releasedCount = 0;
-    function releaseLantern(el) {
-      if (el.classList.contains('released')) return;
-      el.classList.add('released');
-      releasedCount++;
-      spawnFirework(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * 0.25);
-
-      if (releasedCount >= 5) {
-        document.getElementById('lanternHint').style.display = 'none';
-        setTimeout(() => {
-          document.getElementById('lanternDone').style.display = 'block';
-        }, 900);
-      }
-    }
-
-    // 4. Background Fireworks Animation
-    const canvas = document.getElementById('fireworksCanvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
+    function resize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    window.addEventListener('resize', resize);
+    resize();
 
-    function spawnFirework(x, y) {
-      const colors = ['#ffd700', '#ff9900', '#ff4d6d', '#fff275', '#ffae00'];
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      for (let i = 0; i < 38; i++) {
-        const angle = (Math.PI * 2 * i) / 38;
-        const speed = 1.5 + Math.random() * 3.5;
-        particles.push({
-          x, y,
-          vx: Math.cos(angle) * speed,
+    window.burstFirework = function(x, y) {
+      var cols = ['#ffd700', '#ff9900', '#ff4d6d', '#fff275'];
+      var c = cols[Math.floor(Math.random() * cols.length)];
+      for (var i = 0; i < 32; i++) {
+        var a = (Math.PI * 2 * i) / 32;
+        var s = 1.5 + Math.random() * 3;
+        parts.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, alpha: 1, c: c });
+      }
+    };
+
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (Math.random() < 0.03) {
+        window.burstFirework(Math.random() * canvas.width, Math.random() * (canvas.height * 0.5));
+      }
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var p = parts[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03;
+        p.alpha -= 0.018;
+        if (p.alpha <= 0) {
+          parts.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
